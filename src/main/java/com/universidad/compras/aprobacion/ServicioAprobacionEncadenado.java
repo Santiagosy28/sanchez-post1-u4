@@ -1,5 +1,6 @@
 package com.universidad.compras.aprobacion;
 
+import com.universidad.compras.estado.ContextoSolicitud;
 import com.universidad.compras.modelo.Solicitud;
 import org.springframework.stereotype.Service;
 
@@ -36,11 +37,17 @@ public class ServicioAprobacionEncadenado implements ServicioAprobacion {
     }
 
     /**
-     * Punto de cambio de estado de la Necesidad 1. En la Parte 2 se conecta con
-     * las notificaciones (Necesidad 3) y las reglas de transicion (Necesidad 4).
+     * Punto de cambio de estado de la Necesidad 1, conectado con las
+     * Necesidades 3 y 4: la transicion se realiza a traves del contexto de
+     * estado (State), que a su vez dispara las notificaciones (Observer).
      */
     private void aplicarResultado(Solicitud solicitud, ResultadoAprobacion resultado) {
         solicitud.setNivelResolutor(resultado.getNivelResolutor());
-        solicitud.setEstado(resultado.isAprobada() ? "APROBADA" : "RECHAZADA");
+        ContextoSolicitud contexto = new ContextoSolicitud(solicitud);
+        if (resultado.isAprobada()) {
+            contexto.aprobar();
+        } else {
+            contexto.rechazar();
+        }
     }
 }
